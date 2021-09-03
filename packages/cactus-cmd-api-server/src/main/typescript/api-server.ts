@@ -12,9 +12,16 @@ import fs from "fs-extra";
 import expressHttpProxy from "express-http-proxy";
 import { Server as GrpcServer } from "@grpc/grpc-js";
 import { ServerCredentials as GrpcServerCredentials } from "@grpc/grpc-js";
-import type { Application, Request, Response, RequestHandler } from "express";
+import type {
+  Application,
+  Request,
+  Response,
+  RequestHandler,
+  NextFunction,
+} from "express";
 import express from "express";
-import { OpenApiValidator } from "express-openapi-validator";
+import * as OpenApiValidator from "express-openapi-validator";
+import { OpenAPIV3 } from "express-openapi-validator/dist/framework/types";
 import compression from "compression";
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -40,7 +47,7 @@ import { Logger, LoggerProvider, Servers } from "@hyperledger/cactus-common";
 
 import { ICactusApiServerOptions } from "./config/config-service";
 import OAS from "../json/openapi.json";
-import { OpenAPIV3 } from "express-openapi-validator/dist/framework/types";
+// import { OpenAPIV3 } from "express-openapi-validator/dist/framework/types";
 
 import { PrometheusExporter } from "./prometheus-exporter/prometheus-exporter";
 import { AuthorizerFactory } from "./authzn/authorizer-factory";
@@ -470,6 +477,49 @@ export class ApiServer {
   }
 
   /**
+   * Installs the middleware that validates openapi specifications
+   * @param app
+   * @param pluginOAS
+   */
+  async installOpenapiValidationMiddleware(
+    app: express.Application,
+    pluginOAS: unknown,
+  ): Promise<void> {
+    console.log(pluginOAS);
+    const apiSpec = pluginOAS as OpenAPIV3.Document;
+    app.use(
+      OpenApiValidator.middleware({
+        apiSpec,
+        validateApiSpec: false,
+      }),
+    );
+    app.use(
+      (
+        err: {
+          status?: number;
+          errors: [
+            {
+              path: string;
+              message: string;
+              errorCode: string;
+            },
+          ];
+        },
+        req: Request,
+        res: Response,
+        next: NextFunction,
+      ) => {
+        if (err) {
+          res.status(err.status || 500);
+          res.send(err.errors);
+        } else {
+          next();
+        }
+      },
+    );
+  }
+
+  /**
    * Installs the own endpoints of the API server such as the ones providing
    * healthcheck and monitoring information.
    * @param app
@@ -606,8 +656,8 @@ export class ApiServer {
       this.log.info(`Authorization request handler configured OK.`);
     }
 
-    const openApiValidator = this.createOpenApiValidator();
-    await openApiValidator.install(app);
+    // const openApiValidator = this.createOpenApiValidator();
+    // await openApiValidator.install(app);
 
     this.getOrCreateWebServices(app); // The API server's own endpoints
 
@@ -619,6 +669,9 @@ export class ApiServer {
       .map(async (plugin: ICactusPlugin) => {
         const p = plugin as IPluginWebService;
         await p.getOrCreateWebServices();
+        const pluginOAS = p.getOpenApiSpec();
+        if (pluginOAS)
+          await this.installOpenapiValidationMiddleware(app, pluginOAS);
         const webSvcs = await p.registerWebServices(app, wsApi);
         return webSvcs;
       });
@@ -681,14 +734,6 @@ export class ApiServer {
       const { E_NON_EXEMPT_UNPROTECTED_ENDPOINTS } = ApiServer;
       throw new Error(`${E_NON_EXEMPT_UNPROTECTED_ENDPOINTS} ${csv}`);
     }
-  }
-
-  createOpenApiValidator(): OpenApiValidator {
-    return new OpenApiValidator({
-      apiSpec: OAS as OpenAPIV3.Document,
-      validateRequests: true,
-      validateResponses: false,
-    });
   }
 
   createCorsMiddleware(allowedDomains: string[]): RequestHandler {
