@@ -42,6 +42,7 @@ import {
 } from "@hyperledger/cactus-core-api";
 
 import { PluginRegistry } from "@hyperledger/cactus-core";
+import { installOpenapiValidationMiddleware } from "@hyperledger/cactus-core";
 
 import { Logger, LoggerProvider, Servers } from "@hyperledger/cactus-common";
 
@@ -669,9 +670,9 @@ export class ApiServer {
       .map(async (plugin: ICactusPlugin) => {
         const p = plugin as IPluginWebService;
         await p.getOrCreateWebServices();
-        const pluginOAS = p.getOpenApiSpec();
-        if (pluginOAS)
-          await this.installOpenapiValidationMiddleware(app, pluginOAS);
+        const apiSpec = p.getOpenApiSpec() as OpenAPIV3.Document;
+        if (apiSpec)
+          await installOpenapiValidationMiddleware({ app, apiSpec, logLevel });
         const webSvcs = await p.registerWebServices(app, wsApi);
         return webSvcs;
       });
