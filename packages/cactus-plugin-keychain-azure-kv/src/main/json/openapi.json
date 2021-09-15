@@ -26,7 +26,7 @@
         "summary": "Retrieves the contents of a keychain entry from the backend.",
         "parameters": [],
         "requestBody": {
-          "$ref": "https://raw.githubusercontent.com/hyperledger/cactus/v0.8.0/packages/cactus-core-api/src/main/json/openapi.json#/components/requestBodies/keychain_get_entry_request_body"
+          "$ref": "https://raw.githubusercontent.com/elenaizaguirre/cactus/2021-09-15-hotfix-847-updated-schemas/packages/cactus-core-api/src/main/json/openapi.json#/components/requestBodies/keychain_get_entry_request_body"
         },
         "responses": {
           "200": {
@@ -59,7 +59,7 @@
         "summary": "Sets a value under a key on the keychain backend.",
         "parameters": [],
         "requestBody": {
-          "$ref": "https://raw.githubusercontent.com/hyperledger/cactus/v0.8.0/packages/cactus-core-api/src/main/json/openapi.json#/components/requestBodies/keychain_set_entry_request_body"
+          "$ref": "https://raw.githubusercontent.com/elenaizaguirre/cactus/2021-09-15-hotfix-847-updated-schemas/packages/cactus-core-api/src/main/json/openapi.json#/components/requestBodies/keychain_set_entry_request_body"
         },
         "responses": {
           "200": {
