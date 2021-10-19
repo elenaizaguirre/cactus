@@ -1,0 +1,88 @@
+version: '3.6'
+
+services:
+
+  # service for Quorum ledger
+  quorum-aio:
+    container_name: quorum-aio
+    image: "hyperledger/cactus-quorum-all-in-one:2021-05-03-quorum-v21.4.1"
+    ports:
+      - 8545:8545/tcp # RPC - HTTP
+      - 8546:8546/tcp # RPC - WebSocket
+      - 9001:9001/tcp # supervisord - HTTP
+      - 30303:30303/tcp # quorum
+      - 30303:30303/udp # quorum
+      - 30301:30301/udp # quorum
+
+  # service to use when sending plugins as environment variable
+  cmd-api-server-quorum-env:
+    container_name: cmd-api-server-quorum
+    profiles:
+      - env
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        NPM_PKG_VERSION: ${NPM_PKG_VERSION}
+    depends_on:
+      - quorum_aio
+    ports:
+      - 3000:3000
+      - 4000:4000
+    links:
+      - "quorum-aio:ledger_ref"
+    environment: 
+      - AUTHORIZATION_PROTOCOL=${AUTHORIZATION_PROTOCOL}
+      - AUTHORIZATION_CONFIG_JSON=${AUTHORIZATION_CONFIG_JSON}
+      - GRPC_TLS_ENABLED=${GRPC_TLS_ENABLED}
+      - PLUGINS=${PLUGINS}
+
+  # service to use when sending plugins as cli argument
+  cmd-api-server-quorum-cli:
+    container_name: cmd-api-server-quorum
+    profiles:
+      - cli
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        NPM_PKG_VERSION: ${NPM_PKG_VERSION}
+    depends_on:
+      - quorum_aio
+    ports:
+      - 3000:3000
+      - 4000:4000
+    links:
+      - "quorum-aio:ledger_ref"
+    environment: 
+      - AUTHORIZATION_PROTOCOL=${AUTHORIZATION_PROTOCOL}
+      - AUTHORIZATION_CONFIG_JSON=${AUTHORIZATION_CONFIG_JSON}
+      - GRPC_TLS_ENABLED=${GRPC_TLS_ENABLED}
+    command: ./node_modules/@hyperledger/cactus-cmd-api-server/dist/lib/main/typescript/cmd/cactus-api.js --plugins='${PLUGINS}'
+
+  # service to use when sending plugins as configuration file mounted from host machine
+  cmd-api-server-quorum-file:
+    container_name: cmd-api-server-quorum
+    profiles:
+      - file
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        NPM_PKG_VERSION: ${NPM_PKG_VERSION}
+    depends_on:
+      - quorum_aio
+    ports:
+      - 3000:3000
+      - 4000:4000
+    links:
+      - "quorum-aio:ledger_ref"
+    environment: 
+      - AUTHORIZATION_PROTOCOL=${AUTHORIZATION_PROTOCOL}
+      - AUTHORIZATION_CONFIG_JSON=${AUTHORIZATION_CONFIG_JSON}
+      - GRPC_TLS_ENABLED=${GRPC_TLS_ENABLED}
+    volumes:
+    - type: bind
+      source: ./${FILE_NAME}
+      target: ${APP_PATH}/${FILE_NAME}
+    command: ./node_modules/@hyperledger/cactus-cmd-api-server/dist/lib/main/typescript/cmd/cactus-api.js --config-file=./${FILE_NAME}

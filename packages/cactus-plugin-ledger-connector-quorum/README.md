@@ -80,101 +80,64 @@ enum Web3SigningCredentialType {
 
 ## Running the tests
 
-To check that all has been installed correctly and that the pugin has no errors, there are two options to run the tests:
+To check that all has been installed correctly and the plugin has no errors, there are two options to run the tests:
 
 * Run this command at the project's root:
 ```sh
 npm run test:plugin-ledger-connector-quorum
 ```
-
+* Use containers
 ### Building/running the container image locally
 
-In the Cactus project root say:
+All you need to run containers is in `packages/cactus-plugin-ledger-connector-quorum/containerization/`. The containerization of this plugin is based on Docker Compose. The `docker-compose.yml` file includes four services.
+1. Service *quorum-aio* generates a container with the same name that uses cactus-quorum-all-in-one image for the ledger.
+2. Service *cmd-api-server-quorum-env* generates the *cmd-api-server-quorum* container when **env** profile is active.
+3. Service *cmd-api-server-quorum-cli* generates the *cmd-api-server-quorum* container when **cli** profile is active.
+4. Service *cmd-api-server-quorum-file* generates the *cmd-api-server-quorum* container when **file** profile is active.
+
+To run the containers use this command line from folder `packages/cactus-plugin-ledger-connector-quorum/containerization/`:
 
 ```sh
-DOCKER_BUILDKIT=1 docker build -f ./packages/cactus-plugin-ledger-connector-quorum/Dockerfile . -t cplcb
+docker-compose --profile env up --build -d
 ```
 
-Build with a specific version of the npm package:
+To stop them use:
 ```sh
-DOCKER_BUILDKIT=1 docker build --build-arg NPM_PKG_VERSION=0.4.1 -f ./packages/cactus-plugin-ledger-connector-quorum/Dockerfile . -t cplcb
+docker-compose --profile env down
 ```
 
-#### Running the container
+The above instruction will generate two containers, *quorum-aio* and *cmd-api-server-quorum* with plugins as environment variable. You can choose the way to send the plugins by setting the profile flag to:
+- **env**: Launch container with plugin configuration as a environment variable.
+- **cli**: Launch container with plugin configuration as a CLI argument.
+- **file**: Launch container with configuration file mounted from host machine.
 
-Launch container with plugin configuration as an **environment variable**:
-```sh
-docker run \
-  --rm \
-  --publish 3000:3000 \
-  --publish 4000:4000 \
-  --env PLUGINS='[{"packageName": "@hyperledger/cactus-plugin-ledger-connector-quorum", "type": "org.hyperledger.cactus.plugin_import_type.LOCAL",  "options": {"rpcApiHttpHost": "http://localhost:8545", "instanceId": "some-unique-quorum-connector-instance-id"}}]' \
-  cplcb
-```
+#### Configuration
 
-Launch container with plugin configuration as a **CLI argument**:
-```sh
-docker run \
-  --rm \
-  --publish 3000:3000 \
-   --publish 4000:4000 \
-  cplcb \
-    ./node_modules/.bin/cactusapi \
-    --plugins='[{"packageName": "@hyperledger/cactus-plugin-ledger-connector-quorum", "type": "org.hyperledger.cactus.plugin_import_type.LOCAL",  "options": {"rpcApiHttpHost": "http://localhost:8545", "instanceId": "some-unique-quorum-connector-instance-id"}}]'
-```
-
-Launch container with **configuration file** mounted from host machine:
-```sh
-
-echo '[{"packageName": "@hyperledger/cactus-plugin-ledger-connector-quorum", "type": "org.hyperledger.cactus.plugin_import_type.LOCAL",  "options": {"rpcApiHttpHost": "http://localhost:8545", "instanceId": "some-unique-quorum-connector-instance-id"}}]' > cactus.json
-
-docker run \
-  --rm \
-  --publish 3000:3000 \
-  --publish 4000:4000 \
-  --mount type=bind,source="$(pwd)"/cactus.json,target=/cactus.json \
-  cplcb \
-    ./node_modules/.bin/cactusapi \
-    --config-file=/cactus.json
-```
+File *.env* contains the environment variables used by Docker Compose. Some of these variables are shared for all profiles, like NPM_PKG_VERSION, which determines the plugin version to be installed. You can also modify the plugin to be installed when *env* or *cli* profiles are used, and file name used with *file* profile too.
 
 #### Testing API calls with the container
 
-Don't have a quorum network on hand to test with? Test or develop against our quorum All-In-One container!
 
-**Terminal Window 1 (Ledger)**
+**Terminal Window 1 (Ledger & Cactus API Server)**
+
+Run the containers with Docker Compose as above:
 ```sh
-docker run -p 0.0.0.0:8545:8545/tcp  -p 0.0.0.0:8546:8546/tcp  -p 0.0.0.0:8888:8888/tcp  -p 0.0.0.0:9001:9001/tcp  -p 0.0.0.0:9545:9545/tcp hyperledger/cactus-quorum-all-in-one:latest
+docker-compose --profile env up --build -d
 ```
 
-**Terminal Window 2 (Cactus API Server)**
-```sh
-docker run \
-  --network host \
-  --rm \
-  --publish 3000:3000 \
-  --publish 4000:4000 \
-  --env PLUGINS='[{"packageName": "@hyperledger/cactus-plugin-ledger-connector-quorum", "type": "org.hyperledger.cactus.plugin_import_type.LOCAL",  "options": {"rpcApiHttpHost": "http://localhost:8545", "instanceId": "some-unique-quorum-connector-instance-id"}}]' \
-  cplcb
-```
-
-**Terminal Window 3 (curl - replace eth accounts as needed)**
+**Terminal Window 2 (curl - replace eth accounts as needed)**
 ```sh
 curl --location --request POST 'http://127.0.0.1:4000/api/v1/plugins/@hyperledger/cactus-plugin-ledger-connector-quorum/run-transaction' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "web3SigningCredential": {
-      "ethAccount": "627306090abaB3A6e1400e9345bC60c78a8BEf57",
-      "secret": "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3",
-      "type": "PRIVATE_KEY_HEX"
-    },
-    "consistencyStrategy": {
-      "blockConfirmations": 0,
-      "receiptType": "NODE_TX_POOL_ACK"
+      "ethAccount": "0xed9d02e382b34818e88b88a309c7fe71e65f419d",
+      "secret": "",
+      "type": "GETH_KEYCHAIN_PASSWORD"
     },
     "transactionConfig": {
-      "from": "627306090abaB3A6e1400e9345bC60c78a8BEf57",
-      "to": "f17f52151EbEF6C7334FAD080c5704D77216b732",
+      "from": "0xed9d02e382b34818e88b88a309c7fe71e65f419d",
+      "to": "0x0638e1574728b6d862dd5d3a3e0942c3be47d996",
       "value": 1,
       "gas": 10000000
     }
@@ -188,7 +151,7 @@ The above should produce a response that looks similar to this:
     "success": true,
     "data": {
         "transactionReceipt": {
-            "blockHash": "0x7c97c038a5d3bd84613fe23ed442695276d5d2df97f4e7c4f10ca06765033ffd",
+            "blockHash": "0x7a7c88d1cd75abf67aba5a70ee41cddd1f360b1bf8d5bdc0caaafe7448821efa",
             "blockNumber": 1218,
             "contractAddress": null,
             "cumulativeGasUsed": 21000,
@@ -197,8 +160,8 @@ The above should produce a response that looks similar to this:
             "logs": [],
             "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
             "status": true,
-            "to": "0xf17f52151ebef6c7334fad080c5704d77216b732",
-            "transactionHash": "0xc7fcb46c735bdc696d500bfc70c72595a2b8c31813929e5c61d9a5aec3376d6f",
+            "to": "0x0638e1574728b6d862dd5d3a3e0942c3be47d996",
+            "transactionHash": "0xbde79840ed3ee861312f2f5df3aba158ac531455c63fe8cab7770be736634aba",
             "transactionIndex": 0
         }
     }
