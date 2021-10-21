@@ -31,3 +31,4 @@ src/main/kotlin/org/hyperledger/cactus/plugin/ledger/connector/corda/server/mode
 src/main/kotlin/org/hyperledger/cactus/plugin/ledger/connector/corda/server/model/SHA256.kt
 src/main/kotlin/org/hyperledger/cactus/plugin/ledger/connector/corda/server/model/X500Principal.kt
 src/main/resources/application.yaml
+src/main/resources/openapi.json

@@ -28,6 +28,20 @@ import java.lang.RuntimeException
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.IllegalArgumentException
+import io.github.cdimascio.openapi.Validate
+// import io.github.cdimascio.openapi.Validator
+// import org.springframework.web.reactive.function.server.ServerRequest
+// import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.*
+import reactor.core.publisher.Mono
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+// import org.springframework.mock.web.reactive.function.server.MockServerRequest
+// import java.net.URI
+// import org.junit.jupiter.api.Test as test
+
 
 // TODO Look into this project for powering the connector of ours:
 // https://github.com/180Protocol/codaptor
@@ -40,6 +54,14 @@ class ApiPluginLedgerConnectorCordaServiceImpl(
     val rpc: NodeRPCConnection
 ) : ApiPluginLedgerConnectorCordaService {
 
+    // val validate = Validate.configure("../openapi.json")
+    data class ValidationError(val id: String, val messages: List<String>)
+    // val validate = Validate.configure("https://github.com/hyperledger/cactus/blob/v1.0.0-rc.1/packages/cactus-plugin-ledger-connector-corda/src/main/json/openapi.json") { status, messages ->
+    //     ValidationError(status.name, messages)
+    // }
+    val validate = Validate.configure("openapi.json") { status, messages ->
+        ValidationError(status.name, messages)
+    }
     companion object {
         val logger = loggerFor<ApiPluginLedgerConnectorCordaServiceImpl>()
 
@@ -106,10 +128,43 @@ class ApiPluginLedgerConnectorCordaServiceImpl(
     // The other solution is of course to make it so that this endpoint is a fully fledged, robust, production ready
     // implementation and that would be preferred over the longer term, but maybe it's actually just scope creep...
     override fun deployContractJarsV1(deployContractJarsV1Request: DeployContractJarsV1Request?): DeployContractJarsSuccessV1Response {
+
+        // validate.request(deployContractJarsV1Request as ServerRequest) { 
+        //     ServerResponse.ok().body(Mono.just(listOf("carmine", "alex", "eliana")))
+
+        //     Mono.just(ServerResponse.ok().body(listOf("carmine", "alex", "eliana"))
+
+        //     // ServerResponse.ok().body(listOf("carmine", "alex", "eliana"), List<String>)
+        //     // Mono.just(ServerResponse.ok().body(p0, p1))
+        //     // ServerResponse.ok().body(Mono.just(listOf("carmine", "alex", "eliana")))
+        //     // ServerResponse.ok().body(Mono.empty())
+        // }
+
+
+        // val req = MockServerRequest.builder()
+        // .method(HttpMethod.POST)
+        // .uri(URI.create("/api/users"))
+        // .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString())
+        // .body(Mono.just("""
+        //         { "id": 1, "name": "dimascio" }
+        //     """.trimIndent()))
+
+        validate.request(deployContractJarsV1Request as ServerRequest) {
+            ServerResponse.ok().build()
+        }
+
+        // validate.request(deployContractJarsV1Request as ServerRequest).withBody(DeployContractJarsV1Request::class.java) { body ->
+        //     // Note that body is deserialized as User!
+        //     // Now you can do stuff. 
+        //     // For example, lets echo the request as the response 
+        //     ServerResponse.ok().body(Mono.just(body))
+        // }
+
         if (deployContractJarsV1Request == null) {
             throw IllegalArgumentException("DeployContractJarsV1Request cannot be null")
         }
         try {
+            
             val decoder = Base64.getDecoder()
 
             deployContractJarsV1Request.cordappDeploymentConfigs.forEachIndexed { index, cdc ->

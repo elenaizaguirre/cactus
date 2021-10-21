@@ -1,7 +1,9 @@
 package org.hyperledger.cactus.plugin.ledger.connector.corda.server.impl
 
 import net.corda.core.utilities.loggerFor
+// import net.schmizz.sshj.common.*;
 import net.schmizz.sshj.common.KeyType
+// import net.schmizz.sshj.transport.verification.*;
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
 import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts
 import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts.KnownHostEntry

@@ -42,11 +42,21 @@ plugins {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.3.30")
+    // implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.30")
+    // implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.30")
+
+    // implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-web:2.4.3")
+    // implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
+    // implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.1")
+    // implementation("com.fasterxml.jackson.core:jackson-dataformat-yaml:2.7.0")
+
+    // implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.1")
     implementation("javax.json:javax.json-api:1.1.4")
     implementation("$corda_core_release_group:corda-core:$corda_core_release_version")
     implementation("$corda_core_release_group:corda-rpc:$corda_core_release_version")
@@ -64,8 +74,17 @@ dependencies {
 
     implementation("com.hierynomus:sshj:0.31.0")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    implementation("io.github.cdimascio:openapi-spring-webflux-validator:3.3.0")
+    implementation("org.springframework:spring-web-reactive:5.0.0.M4")
+
+    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.4.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.3.8-1.4-rc-154")
+
+
+
+    // testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:1.3.30")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.4.3") {
         exclude(module = "junit")
     }
 }
