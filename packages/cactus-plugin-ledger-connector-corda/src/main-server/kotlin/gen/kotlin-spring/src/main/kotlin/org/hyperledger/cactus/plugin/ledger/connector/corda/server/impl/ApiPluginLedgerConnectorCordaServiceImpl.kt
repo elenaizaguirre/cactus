@@ -28,6 +28,9 @@ import java.lang.RuntimeException
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.IllegalArgumentException
+import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.ServerRequest
+import io.github.cdimascio.openapi.Validate
 
 // TODO Look into this project for powering the connector of ours:
 // https://github.com/180Protocol/codaptor
@@ -39,6 +42,11 @@ class ApiPluginLedgerConnectorCordaServiceImpl(
     // Either way, these magic strings gotta go.
     val rpc: NodeRPCConnection
 ) : ApiPluginLedgerConnectorCordaService {
+
+    data class ValidationError(val id: String, val messages: List<String>)
+    val validate = Validate.configure("openapi.json") { status, messages ->
+        ValidationError(status.name, messages)
+    }
 
     companion object {
         val logger = loggerFor<ApiPluginLedgerConnectorCordaServiceImpl>()
@@ -106,6 +114,12 @@ class ApiPluginLedgerConnectorCordaServiceImpl(
     // The other solution is of course to make it so that this endpoint is a fully fledged, robust, production ready
     // implementation and that would be preferred over the longer term, but maybe it's actually just scope creep...
     override fun deployContractJarsV1(deployContractJarsV1Request: DeployContractJarsV1Request?): DeployContractJarsSuccessV1Response {
+        // ServerRequest.create(deployContractJarsV1Request)
+        // validate.request(deployContractJarsV1Request as ServerRequest) {
+            
+        //     ServerResponse.ok().build()
+        // }
+
         if (deployContractJarsV1Request == null) {
             throw IllegalArgumentException("DeployContractJarsV1Request cannot be null")
         }

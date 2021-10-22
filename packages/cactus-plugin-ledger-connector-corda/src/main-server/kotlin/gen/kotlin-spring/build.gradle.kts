@@ -16,7 +16,7 @@ buildscript {
         maven { url = uri("https://repo1.maven.org/maven2") }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.2.0.M3")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.4.0")
     }
 }
 
@@ -34,10 +34,11 @@ tasks.withType<KotlinCompile> {
 
 plugins {
     val kotlinVersion = "1.3.30"
+    // id("org.jetbrains.kotlin") version kotlinVersion
     id("org.jetbrains.kotlin.jvm") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
-    id("org.springframework.boot") version "2.2.0.M3"
+    id("org.springframework.boot") version "2.4.0"
     id("io.spring.dependency-management") version "1.0.5.RELEASE"
 }
 
@@ -45,8 +46,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.1")
     implementation("javax.json:javax.json-api:1.1.4")
     implementation("$corda_core_release_group:corda-core:$corda_core_release_version")
     implementation("$corda_core_release_group:corda-rpc:$corda_core_release_version")
@@ -63,6 +64,17 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1")
 
     implementation("com.hierynomus:sshj:0.31.0")
+
+    implementation("io.github.cdimascio:openapi-spring-webflux-validator:3.3.0")
+    implementation("org.springframework:spring-web-reactive:5.0.0.M4")
+ 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.3.8-1.4-rc-154")
+    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.8-1.4-rc-154")
+    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8-1.4-rc-154")
+    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.3.8-1.4-rc-154")
+    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.3.8-1.4-rc-154")
+    implementation("org.apache.activemq:artemis-jms-server:2.17.0")
+
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
