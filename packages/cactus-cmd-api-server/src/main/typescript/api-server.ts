@@ -359,7 +359,9 @@ export class ApiServer {
     pluginImport: PluginImport,
   ): Promise<void> {
     const fnTag = `ApiServer#installPluginPackage()`;
-    const { packageName: pkgName } = pluginImport;
+    const pkgName = pluginImport.options.packageSrc
+      ? pluginImport.options.packageSrc
+      : pluginImport.packageName;
 
     const instanceId = pluginImport.options.instanceId;
     const pluginPackageDir = path.join(this.pluginsPath, instanceId);
