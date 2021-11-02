@@ -16,9 +16,12 @@ import {
   CordappDeploymentConfig,
   DefaultApi as CordaApi,
   DeployContractJarsV1Request,
-  //   FlowInvocationType,
-  //   InvokeContractV1Request,
-  //   JvmTypeKind,
+  DiagnoseNodeV1Request,
+  FlowInvocationType,
+  InvokeContractV1Request,
+  JvmTypeKind,
+  ListFlowsV1Request,
+  PublicKey,
 } from "../../../../main/typescript/generated/openapi/typescript-axios/index";
 import { Configuration } from "@hyperledger/cactus-core-api";
 
@@ -54,6 +57,7 @@ test(testCase, async (t: Test) => {
   await ledger.logDebugPorts();
   const partyARpcPort = await ledger.getRpcAPublicPort();
 
+  const cordappDeploymentConfigs: CordappDeploymentConfig[] = [];
   const jarFiles = await ledger.pullCordappJars(
     SampleCordappEnum.ADVANCED_OBLIGATION,
   );
@@ -111,311 +115,675 @@ test(testCase, async (t: Test) => {
   const config = new Configuration({ basePath: apiUrl });
   const apiClient = new CordaApi(config);
 
-  // const flowsRes = await apiClient.listFlowsV1();
-  // t.ok(flowsRes.status === 200, "flowsRes.status === 200 OK");
-  // t.ok(flowsRes.data, "flowsRes.data truthy OK");
-  // t.ok(flowsRes.data.flowNames, "flowsRes.data.flowNames truthy OK");
-  // t.comment(`apiClient.listFlowsV1() => ${JSON.stringify(flowsRes.data)}`);
+  const fDeploy = "deployContractJarsV1";
+  const fInvoke = "invokeContractV1";
+  const fDiagnose = "diagnoseNodeV1";
+  const fFlows = "listFlowsV1";
+  const fNetwork = "networkMapV1";
+  const cOk = "without bad request error";
+  const cWithoutParams = "not sending all required parameters";
+  const cInvalidParams = "sending invalid parameters";
 
-  // const diagRes = await apiClient.diagnoseNodeV1();
-  // t.ok(diagRes.status === 200, "diagRes.status === 200 OK");
-  // t.ok(diagRes.data, "diagRes.data truthy OK");
-  // t.ok(diagRes.data.nodeDiagnosticInfo, "nodeDiagnosticInfo truthy OK");
-  // const ndi = diagRes.data.nodeDiagnosticInfo;
-  // t.ok(ndi.cordapps, "ndi.cordapps truthy OK");
-  // t.ok(Array.isArray(ndi.cordapps), "ndi.cordapps is Array truthy OK");
-  // t.true((ndi.cordapps as []).length > 0, "ndi.cordapps non-empty true OK");
-  // t.ok(ndi.vendor, "ndi.vendor truthy OK");
-  // t.ok(ndi.version, "ndi.version truthy OK");
-  // t.ok(ndi.revision, "ndi.revision truthy OK");
-  // t.ok(ndi.platformVersion, "ndi.platformVersion truthy OK");
-
-  // t.comment(`apiClient.diagnoseNodeV1() => ${JSON.stringify(diagRes.data)}`);
-
-  const cordappDeploymentConfigs: CordappDeploymentConfig[] = [];
-  const depReq: DeployContractJarsV1Request = {
-    jarFiles,
-    cordappDeploymentConfigs,
-  };
-  const depRes = await apiClient.deployContractJarsV1(depReq);
-  t.ok(depRes, "Jar deployment response truthy OK");
-  t.equal(depRes.status, 200, "Jar deployment status code === 200 OK");
-  t.ok(depRes.data, "Jar deployment response body truthy OK");
-  t.ok(depRes.data.deployedJarFiles, "Jar deployment body deployedJarFiles OK");
-  t.equal(
-    depRes.data.deployedJarFiles.length,
-    jarFiles.length,
-    "Deployed jar file count equals count in request OK",
-  );
-
-  try {
-    const depReq = {
+  test(`${testCase} - ${fDeploy} - ${cOk}`, async (t2: Test) => {
+    const depReq: DeployContractJarsV1Request = {
       jarFiles,
+      cordappDeploymentConfigs,
     };
-    await apiClient.deployContractJarsV1(
-      (depReq as any) as DeployContractJarsV1Request,
+    const depRes = await apiClient.deployContractJarsV1(depReq);
+    t2.ok(depRes, "Jar deployment response truthy OK");
+    t2.equal(depRes.status, 200, "Jar deployment status code === 200 OK");
+    t2.ok(depRes.data, "Jar deployment response body truthy OK");
+    t2.ok(
+      depRes.data?.deployedJarFiles,
+      "Jar deployment body deployedJarFiles OK",
     );
-  } catch (e) {
-    t.equal(
-      e.response.data.status,
-      400,
-      "Jar deployment status code === 400 OK",
+    t2.equal(
+      depRes.data?.deployedJarFiles?.length,
+      jarFiles.length,
+      "Deployed jar file count equals count in request OK",
     );
-  }
+    t2.end();
+  });
 
-  //   const networkMapRes = await apiClient.networkMapV1();
-  //   const partyA = networkMapRes.data.find((it) =>
-  //     it.legalIdentities.some((it2) => it2.name.organisation === "ParticipantA"),
-  //   );
-  //   const partyAPublicKey = partyA?.legalIdentities[0].owningKey;
+  test(`${testCase} - ${fFlows} - ${cOk}`, async (t2: Test) => {
+    const flowsRes = await apiClient.listFlowsV1();
+    t2.ok(flowsRes.status === 200, "flowsRes.status === 200 OK");
+    t2.ok(flowsRes.data, "flowsRes.data truthy OK");
+    t2.ok(flowsRes.data.flowNames, "flowsRes.data.flowNames truthy OK");
+    t2.comment(`apiClient.listFlowsV1() => ${JSON.stringify(flowsRes.data)}`);
+    t2.end();
+  });
 
-  //   const partyB = networkMapRes.data.find((it) =>
-  //     it.legalIdentities.some((it2) => it2.name.organisation === "ParticipantB"),
-  //   );
-  //   const partyBPublicKey = partyB?.legalIdentities[0].owningKey;
+  test(`${testCase} - ${fDiagnose} - ${cOk}`, async (t2: Test) => {
+    const diagRes = await apiClient.diagnoseNodeV1();
+    t2.ok(diagRes.status === 200, "diagRes.status === 200 OK");
+    t2.ok(diagRes.data, "diagRes.data truthy OK");
+    t2.ok(diagRes.data.nodeDiagnosticInfo, "nodeDiagnosticInfo truthy OK");
+    const ndi = diagRes.data.nodeDiagnosticInfo;
+    t2.ok(ndi.cordapps, "ndi.cordapps truthy OK");
+    t2.ok(Array.isArray(ndi.cordapps), "ndi.cordapps is Array truthy OK");
+    t2.true((ndi.cordapps as []).length > 0, "ndi.cordapps non-empty true OK");
+    t2.ok(ndi.vendor, "ndi.vendor truthy OK");
+    t2.ok(ndi.version, "ndi.version truthy OK");
+    t2.ok(ndi.revision, "ndi.revision truthy OK");
+    t2.ok(ndi.platformVersion, "ndi.platformVersion truthy OK");
+    t2.end();
+  });
 
-  //   const req: InvokeContractV1Request = ({
-  //     flowFullClassName: "net.corda.samples.obligation.flows.IOUIssueFlow",
-  //     flowInvocationType: FlowInvocationType.TrackedFlowDynamic,
-  //     params: [
-  //       {
-  //         jvmTypeKind: JvmTypeKind.Reference,
-  //         jvmType: {
-  //           fqClassName: "net.corda.samples.obligation.states.IOUState",
-  //         },
+  let partyAPublicKey: PublicKey | undefined;
+  let partyBPublicKey: PublicKey | undefined;
 
-  //         jvmCtorArgs: [
-  //           {
-  //             jvmTypeKind: JvmTypeKind.Reference,
-  //             jvmType: {
-  //               fqClassName: "net.corda.core.contracts.Amount",
-  //             },
+  test(`${testCase} - ${fNetwork} - ${cOk}`, async (t2: Test) => {
+    const networkMapRes = await apiClient.networkMapV1();
+    t2.ok(networkMapRes.status === 200, "networkMapRes.status === 200 OK");
+    const partyA = networkMapRes.data.find((it) =>
+      it.legalIdentities.some(
+        (it2) => it2.name.organisation === "ParticipantA",
+      ),
+    );
+    partyAPublicKey = partyA?.legalIdentities[0].owningKey;
 
-  //             jvmCtorArgs: [
-  //               {
-  //                 jvmTypeKind: JvmTypeKind.Primitive,
-  //                 jvmType: {
-  //                   fqClassName: "long",
-  //                 },
-  //                 primitiveValue: 42,
-  //               },
-  //               {
-  //                 jvmTypeKind: JvmTypeKind.Reference,
-  //                 jvmType: {
-  //                   fqClassName: "java.util.Currency",
-  //                   constructorName: "getInstance",
-  //                 },
+    const partyB = networkMapRes.data.find((it) =>
+      it.legalIdentities.some(
+        (it2) => it2.name.organisation === "ParticipantB",
+      ),
+    );
+    partyBPublicKey = partyB?.legalIdentities[0].owningKey;
+    t2.end();
+  });
 
-  //                 jvmCtorArgs: [
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: "USD",
-  //                   },
-  //                 ],
-  //               },
-  //             ],
-  //           },
-  //           {
-  //             jvmTypeKind: JvmTypeKind.Reference,
-  //             jvmType: {
-  //               fqClassName: "net.corda.core.identity.Party",
-  //             },
+  test(`${testCase} - ${fInvoke} - ${cOk}`, async (t2: Test) => {
+    const req: InvokeContractV1Request = ({
+      flowFullClassName: "net.corda.samples.obligation.flows.IOUIssueFlow",
+      flowInvocationType: FlowInvocationType.TrackedFlowDynamic,
+      params: [
+        {
+          jvmTypeKind: JvmTypeKind.Reference,
+          jvmType: {
+            fqClassName: "net.corda.samples.obligation.states.IOUState",
+          },
 
-  //             jvmCtorArgs: [
-  //               {
-  //                 jvmTypeKind: JvmTypeKind.Reference,
-  //                 jvmType: {
-  //                   fqClassName: "net.corda.core.identity.CordaX500Name",
-  //                 },
+          jvmCtorArgs: [
+            {
+              jvmTypeKind: JvmTypeKind.Reference,
+              jvmType: {
+                fqClassName: "net.corda.core.contracts.Amount",
+              },
 
-  //                 jvmCtorArgs: [
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: "ParticipantA",
-  //                   },
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: "London",
-  //                   },
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: "GB",
-  //                   },
-  //                 ],
-  //               },
-  //               {
-  //                 jvmTypeKind: JvmTypeKind.Reference,
-  //                 jvmType: {
-  //                   fqClassName:
-  //                     "org.hyperledger.cactus.plugin.ledger.connector.corda.server.impl.PublicKeyImpl",
-  //                 },
+              jvmCtorArgs: [
+                {
+                  jvmTypeKind: JvmTypeKind.Primitive,
+                  jvmType: {
+                    fqClassName: "long",
+                  },
+                  primitiveValue: 42,
+                },
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName: "java.util.Currency",
+                    constructorName: "getInstance",
+                  },
 
-  //                 jvmCtorArgs: [
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: partyAPublicKey?.algorithm,
-  //                   },
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: partyAPublicKey?.format,
-  //                   },
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: partyAPublicKey?.encoded,
-  //                   },
-  //                 ],
-  //               },
-  //             ],
-  //           },
-  //           {
-  //             jvmTypeKind: JvmTypeKind.Reference,
-  //             jvmType: {
-  //               fqClassName: "net.corda.core.identity.Party",
-  //             },
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "USD",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              jvmTypeKind: JvmTypeKind.Reference,
+              jvmType: {
+                fqClassName: "net.corda.core.identity.Party",
+              },
 
-  //             jvmCtorArgs: [
-  //               {
-  //                 jvmTypeKind: JvmTypeKind.Reference,
-  //                 jvmType: {
-  //                   fqClassName: "net.corda.core.identity.CordaX500Name",
-  //                 },
+              jvmCtorArgs: [
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName: "net.corda.core.identity.CordaX500Name",
+                  },
 
-  //                 jvmCtorArgs: [
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: "ParticipantB",
-  //                   },
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: "New York",
-  //                   },
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: "US",
-  //                   },
-  //                 ],
-  //               },
-  //               {
-  //                 jvmTypeKind: JvmTypeKind.Reference,
-  //                 jvmType: {
-  //                   fqClassName:
-  //                     "org.hyperledger.cactus.plugin.ledger.connector.corda.server.impl.PublicKeyImpl",
-  //                 },
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "ParticipantA",
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "London",
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "GB",
+                    },
+                  ],
+                },
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName:
+                      "org.hyperledger.cactus.plugin.ledger.connector.corda.server.impl.PublicKeyImpl",
+                  },
 
-  //                 jvmCtorArgs: [
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: partyBPublicKey?.algorithm,
-  //                   },
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: partyBPublicKey?.format,
-  //                   },
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: partyBPublicKey?.encoded,
-  //                   },
-  //                 ],
-  //               },
-  //             ],
-  //           },
-  //           {
-  //             jvmTypeKind: JvmTypeKind.Reference,
-  //             jvmType: {
-  //               fqClassName: "net.corda.core.contracts.Amount",
-  //             },
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyAPublicKey?.algorithm,
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyAPublicKey?.format,
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyAPublicKey?.encoded,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              jvmTypeKind: JvmTypeKind.Reference,
+              jvmType: {
+                fqClassName: "net.corda.core.identity.Party",
+              },
 
-  //             jvmCtorArgs: [
-  //               {
-  //                 jvmTypeKind: JvmTypeKind.Primitive,
-  //                 jvmType: {
-  //                   fqClassName: "long",
-  //                 },
-  //                 primitiveValue: 1,
-  //               },
-  //               {
-  //                 jvmTypeKind: JvmTypeKind.Reference,
-  //                 jvmType: {
-  //                   fqClassName: "java.util.Currency",
-  //                   constructorName: "getInstance",
-  //                 },
+              jvmCtorArgs: [
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName: "net.corda.core.identity.CordaX500Name",
+                  },
 
-  //                 jvmCtorArgs: [
-  //                   {
-  //                     jvmTypeKind: JvmTypeKind.Primitive,
-  //                     jvmType: {
-  //                       fqClassName: "java.lang.String",
-  //                     },
-  //                     primitiveValue: "USD",
-  //                   },
-  //                 ],
-  //               },
-  //             ],
-  //           },
-  //           {
-  //             jvmTypeKind: JvmTypeKind.Reference,
-  //             jvmType: {
-  //               fqClassName: "net.corda.core.contracts.UniqueIdentifier",
-  //             },
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "ParticipantB",
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "New York",
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "US",
+                    },
+                  ],
+                },
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName:
+                      "org.hyperledger.cactus.plugin.ledger.connector.corda.server.impl.PublicKeyImpl",
+                  },
 
-  //             jvmCtorArgs: [
-  //               {
-  //                 jvmTypeKind: JvmTypeKind.Primitive,
-  //                 jvmType: {
-  //                   fqClassName: "java.lang.String",
-  //                 },
-  //                 primitiveValue: "7fc2161e-f8d0-4c86-a596-08326bdafd56",
-  //               },
-  //             ],
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //     timeoutMs: 60000,
-  //   } as unknown) as InvokeContractV1Request;
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyBPublicKey?.algorithm,
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyBPublicKey?.format,
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyBPublicKey?.encoded,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              jvmTypeKind: JvmTypeKind.Reference,
+              jvmType: {
+                fqClassName: "net.corda.core.contracts.Amount",
+              },
 
-  //   const res = await apiClient.invokeContractV1(req);
-  //   t.ok(res, "InvokeContractV1Request truthy OK");
-  //   t.equal(res.status, 200, "InvokeContractV1Request status code === 200 OK");
+              jvmCtorArgs: [
+                {
+                  jvmTypeKind: JvmTypeKind.Primitive,
+                  jvmType: {
+                    fqClassName: "long",
+                  },
+                  primitiveValue: 1,
+                },
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName: "java.util.Currency",
+                    constructorName: "getInstance",
+                  },
+
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "USD",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              jvmTypeKind: JvmTypeKind.Reference,
+              jvmType: {
+                fqClassName: "net.corda.core.contracts.UniqueIdentifier",
+              },
+
+              jvmCtorArgs: [
+                {
+                  jvmTypeKind: JvmTypeKind.Primitive,
+                  jvmType: {
+                    fqClassName: "java.lang.String",
+                  },
+                  primitiveValue: "7fc2161e-f8d0-4c86-a596-08326bdafd56",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      timeoutMs: 60000,
+    } as unknown) as InvokeContractV1Request;
+
+    const res = await apiClient.invokeContractV1(req);
+    t2.ok(res, "InvokeContractV1Request truthy OK");
+    t2.equal(res.status, 200, "InvokeContractV1Request status code === 200 OK");
+    t2.end();
+  });
+
+  test(`${testCase} - ${fDeploy} - ${cWithoutParams}`, async (t2: Test) => {
+    try {
+      const depReq = ({
+        jarFiles,
+      } as unknown) as DeployContractJarsV1Request;
+      await apiClient.deployContractJarsV1(depReq);
+    } catch (e) {
+      t2.equal(
+        e.response?.data?.status,
+        400,
+        "Deploy contract response status code === 400 OK",
+      );
+    }
+    t2.end();
+  });
+
+  test(`${testCase} - ${fInvoke} - ${cWithoutParams}`, async (t2: Test) => {
+    try {
+      const req = ({
+        flowFullClassName: "net.corda.samples.obligation.flows.IOUIssueFlow",
+        flowInvocationType: FlowInvocationType.TrackedFlowDynamic,
+        timeoutMs: 60000,
+      } as unknown) as InvokeContractV1Request;
+      await apiClient.invokeContractV1(req);
+    } catch (e) {
+      t2.equal(
+        e.response?.data?.status,
+        400,
+        "Invoke contract response status code === 400 OK",
+      );
+    }
+    t2.end();
+  });
+
+  test(`${testCase} - ${fDeploy} - ${cInvalidParams}`, async (t2: Test) => {
+    try {
+      const depReq = {
+        jarFiles,
+        cordappDeploymentConfigs,
+        fake: 4,
+      };
+      await apiClient.deployContractJarsV1(depReq);
+    } catch (e) {
+      t2.equal(
+        e.response?.data?.status,
+        400,
+        "Deploy contract response status code === 400 OK",
+      );
+    }
+    t2.end();
+  });
+
+  test(`${testCase} - ${fFlows} - ${cInvalidParams}`, async (t2: Test) => {
+    try {
+      const req = { fake: 4 } as ListFlowsV1Request;
+      await apiClient.listFlowsV1(req);
+    } catch (e) {
+      t2.equal(
+        e.response?.data?.status,
+        400,
+        "List flows response status code === 400 OK",
+      );
+    }
+    t2.end();
+  });
+
+  test(`${testCase} - ${fDiagnose} - ${cInvalidParams}`, async (t2: Test) => {
+    try {
+      const req = { fake: 4 } as DiagnoseNodeV1Request;
+      await apiClient.diagnoseNodeV1(req);
+    } catch (e) {
+      t2.equal(
+        e.response?.data?.status,
+        400,
+        "Diagnose node response status code === 400 OK",
+      );
+    }
+    t2.end();
+  });
+
+  test(`${testCase} - ${fNetwork} - ${cInvalidParams}`, async (t2: Test) => {
+    try {
+      const req = { fake: 4 };
+      await apiClient.networkMapV1(req);
+    } catch (e) {
+      t2.equal(
+        e.response?.data?.status,
+        400,
+        "Network map response status code === 400 OK",
+      );
+    }
+    t2.end();
+  });
+
+  test(`${testCase} - ${fInvoke} - ${cInvalidParams}`, async (t2: Test) => {
+    const req: InvokeContractV1Request = ({
+      flowFullClassName: "net.corda.samples.obligation.flows.IOUIssueFlow",
+      flowInvocationType: FlowInvocationType.TrackedFlowDynamic,
+      params: [
+        {
+          jvmTypeKind: JvmTypeKind.Reference,
+          jvmType: {
+            fqClassName: "net.corda.samples.obligation.states.IOUState",
+          },
+
+          jvmCtorArgs: [
+            {
+              jvmTypeKind: JvmTypeKind.Reference,
+              jvmType: {
+                fqClassName: "net.corda.core.contracts.Amount",
+              },
+
+              jvmCtorArgs: [
+                {
+                  jvmTypeKind: JvmTypeKind.Primitive,
+                  jvmType: {
+                    fqClassName: "long",
+                  },
+                  primitiveValue: 42,
+                },
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName: "java.util.Currency",
+                    constructorName: "getInstance",
+                  },
+
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "USD",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              jvmTypeKind: JvmTypeKind.Reference,
+              jvmType: {
+                fqClassName: "net.corda.core.identity.Party",
+              },
+
+              jvmCtorArgs: [
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName: "net.corda.core.identity.CordaX500Name",
+                  },
+
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "ParticipantA",
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "London",
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "GB",
+                    },
+                  ],
+                },
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName:
+                      "org.hyperledger.cactus.plugin.ledger.connector.corda.server.impl.PublicKeyImpl",
+                  },
+
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyAPublicKey?.algorithm,
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyAPublicKey?.format,
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyAPublicKey?.encoded,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              jvmTypeKind: JvmTypeKind.Reference,
+              jvmType: {
+                fqClassName: "net.corda.core.identity.Party",
+              },
+
+              jvmCtorArgs: [
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName: "net.corda.core.identity.CordaX500Name",
+                  },
+
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "ParticipantB",
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "New York",
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "US",
+                    },
+                  ],
+                },
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName:
+                      "org.hyperledger.cactus.plugin.ledger.connector.corda.server.impl.PublicKeyImpl",
+                  },
+
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyBPublicKey?.algorithm,
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyBPublicKey?.format,
+                    },
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: partyBPublicKey?.encoded,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              jvmTypeKind: JvmTypeKind.Reference,
+              jvmType: {
+                fqClassName: "net.corda.core.contracts.Amount",
+              },
+
+              jvmCtorArgs: [
+                {
+                  jvmTypeKind: JvmTypeKind.Primitive,
+                  jvmType: {
+                    fqClassName: "long",
+                  },
+                  primitiveValue: 1,
+                },
+                {
+                  jvmTypeKind: JvmTypeKind.Reference,
+                  jvmType: {
+                    fqClassName: "java.util.Currency",
+                    constructorName: "getInstance",
+                  },
+
+                  jvmCtorArgs: [
+                    {
+                      jvmTypeKind: JvmTypeKind.Primitive,
+                      jvmType: {
+                        fqClassName: "java.lang.String",
+                      },
+                      primitiveValue: "USD",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              jvmTypeKind: JvmTypeKind.Reference,
+              jvmType: {
+                fqClassName: "net.corda.core.contracts.UniqueIdentifier",
+              },
+
+              jvmCtorArgs: [
+                {
+                  jvmTypeKind: JvmTypeKind.Primitive,
+                  jvmType: {
+                    fqClassName: "java.lang.String",
+                  },
+                  primitiveValue: "7fc2161e-f8d0-4c86-a596-08326bdafd56",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      timeoutMs: 60000,
+      fake: 4,
+    } as unknown) as InvokeContractV1Request;
+
+    try {
+      await apiClient.invokeContractV1(req);
+    } catch (e) {
+      t2.equal(
+        e.response?.data?.status,
+        400,
+        "Invoke contract response status code === 400 OK",
+      );
+    }
+    t2.end();
+  });
 
   t.end();
 });
