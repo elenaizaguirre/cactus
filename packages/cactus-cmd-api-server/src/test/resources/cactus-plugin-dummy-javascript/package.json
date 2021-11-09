@@ -1,0 +1,19 @@
+{
+    "name": "@hyperledger/cactus-plugin-dummy-javascript",
+    "version": "1.0.0-rc.2",
+    "description": "Dummy package for testing.",
+    "main": "main/typescript/index.js",
+    "dependencies": {
+      "@hyperledger/cactus-common": "1.0.0-rc.2",
+      "@hyperledger/cactus-core": "1.0.0-rc.2",
+      "@hyperledger/cactus-core-api": "1.0.0-rc.2",
+      "axios": "0.21.4",
+      "express": "4.17.1",
+      "prom-client": "13.2.0",
+      "uuid": "8.3.2"
+    },
+    "devDependencies": {
+      "@types/express": "4.17.13"
+    }
+  }
+  
