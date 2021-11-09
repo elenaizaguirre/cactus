@@ -1,6 +1,6 @@
 {
     "name": "@hyperledger/cactus-plugin-dummy-javascript",
-    "version": "1.0.0-rc.1",
+    "version": "1.0.0-rc.2",
     "description": "Dummy package for testing.",
     "main": "main/typescript/index.js",
     "dependencies": {
