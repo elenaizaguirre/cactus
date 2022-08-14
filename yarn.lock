@@ -3682,10 +3682,10 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.4.2.tgz#748a5986a02548ef541cabc2ce8c67a890044c40"
   integrity sha512-bavxs18L47EmcdnL9I6DzsVSUJO+0/zD6zH7/6qG7QRBugvR3VNVZR+nMvuZlCNwuTTnCa3apR00PYzYr/efAw==
 
-"@openzeppelin/contracts@4.4.2":
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.4.2.tgz#4e889c9c66e736f7de189a53f8ba5b8d789425c2"
-  integrity sha512-NyJV7sJgoGYqbtNUWgzzOGW4T6rR19FmX1IJgXGdapGPWsuMelGJn9h03nos0iqfforCbCB0iYIR0MtIuIFLLw==
+"@openzeppelin/contracts@4.7.2":
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.7.2.tgz#7587416fe2d35abf574193515b8971bfe9f64bc7"
+  integrity sha512-4n/JL9izql8303mPqPdubuna/DWEMbmOzWYUWyCPhjhiEr2w3nQrjE7vZz1fBF+wzzP6dZbIcsgqACk53c9FGA==
 
 "@polka/url@^1.0.0-next.20":
   version "1.0.0-next.21"
@@ -14489,20 +14489,15 @@ jsrsasign@10.4.0:
   resolved "https://registry.yarnpkg.com/jsrsasign/-/jsrsasign-10.4.0.tgz#362cc787079c03a363a958c03eb68d8545ba92f7"
   integrity sha512-C8qLhiAssh/b74KJpGhWuFGG9cFhJqMCVuuHXRibb3Z5vPuAW0ue0jUirpoExCdpdhv4nD3sZ1DAwJURYJTm9g==
 
-jsrsasign@^10.4.0:
-  version "10.4.1"
-  resolved "https://registry.yarnpkg.com/jsrsasign/-/jsrsasign-10.4.1.tgz#3aec10b6201e3c321d4ee2b1e010bc2f808ed4d0"
-  integrity sha512-g2CP2nb8xKdmfZhuHaJEz1zVYTsZc+lUjLFvgbMX35/cUALK0G15sQfCbCpDg/UivkjCNlq0lV6FxCfPhv0shw==
-
-jsrsasign@^10.4.1:
+jsrsasign@10.5.0, jsrsasign@^10.4.1:
   version "10.5.0"
   resolved "https://registry.yarnpkg.com/jsrsasign/-/jsrsasign-10.5.0.tgz#28acf0dbe7565633d306190fd9400c38dd862cb0"
   integrity sha512-AC1kfL1LJASKBLGv4bLLl+auFlsBajOxEcggL7fn8cp7nMRPhyln3LK/Q9lEDCrxYFU35NGUeFtUBCbasoF2Uw==
 
-jsrsasign@^10.5.0:
-  version "10.5.1"
-  resolved "https://registry.yarnpkg.com/jsrsasign/-/jsrsasign-10.5.1.tgz#85dc7c6c3f6a5fded26030971c08ce5058f525f6"
-  integrity sha512-yW0fq87KNZFw4Pn5ySllXs3ztZAROQZczEheKZTqmiNpCe/Xj9r5NhuAQ7MXTOyEZGJ/+MPHGTsfbgPFaLpwHQ==
+jsrsasign@^10.4.0:
+  version "10.4.1"
+  resolved "https://registry.yarnpkg.com/jsrsasign/-/jsrsasign-10.4.1.tgz#3aec10b6201e3c321d4ee2b1e010bc2f808ed4d0"
+  integrity sha512-g2CP2nb8xKdmfZhuHaJEz1zVYTsZc+lUjLFvgbMX35/cUALK0G15sQfCbCpDg/UivkjCNlq0lV6FxCfPhv0shw==
 
 jszip@^3.1.3:
   version "3.7.1"
