@@ -19,7 +19,7 @@
     "debug": "~2.6.9",
     "ethereumjs-common": "^1.5.1",
     "ethereumjs-tx": "^2.1.2",
-    "express": "~4.16.1",
+    "express": "~4.17.3",
     "fabric-ca-client": "1.4.19",
     "fabric-network": "1.4.19",
     "js-yaml": "3.14.1",

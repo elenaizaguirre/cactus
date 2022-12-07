@@ -62,7 +62,7 @@
   "dependencies": {
     "@hyperledger/cactus-common": "1.0.0-rc.3",
     "@hyperledger/cactus-core-api": "1.0.0-rc.3",
-    "express": "4.17.1",
+    "express": "4.17.3",
     "express-jwt-authz": "2.4.1",
     "express-openapi-validator": "4.12.12",
     "typescript-optional": "2.0.1"
